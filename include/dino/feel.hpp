@@ -27,6 +27,10 @@ public:
     float agent_heading(int32_t index) const;
     int32_t agent_species(int32_t index) const;
     int32_t agent_lod(int32_t index) const;
+    int32_t agent_loco_state(int32_t index) const;
+    float agent_speed(int32_t index) const;
+    float agent_body_radius(int32_t index) const;
+    bool agent_alive(int32_t index) const;
     int32_t raptor_kills() const { return static_cast<int32_t>(island_.metrics.raptor_kills); }
     float rear_arc_fraction() const { return island_.metrics.rear_arc_fraction(); }
     float immigrant_rate() const { return island_.metrics.immigrant_rate(); }

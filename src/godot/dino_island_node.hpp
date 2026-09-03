@@ -28,6 +28,10 @@ public:
     float agent_heading(int32_t index) const;
     int32_t agent_species(int32_t index) const;
     int32_t agent_lod(int32_t index) const;
+    int32_t agent_loco_state(int32_t index) const;
+    float agent_speed(int32_t index) const;
+    float agent_body_radius(int32_t index) const;
+    bool agent_alive(int32_t index) const;
     int32_t raptor_kills() const;
     float rear_arc_fraction() const;
     float immigrant_rate() const;

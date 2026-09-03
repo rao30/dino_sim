@@ -5,7 +5,7 @@ Read this before touching Godot, the island sim, or training.
 ## Architecture
 
 - **C++ is the sim.** `include/dino` + `src/` own locomotion, combat, LOD, scripted policies, and `dino::DinoIslandFeel`.
-- **Godot is a view.** `godot/` is a Godot **4.6** project. `DinoIslandNode` (`src/godot/`) is a thin GDExtension wrapper. `godot/scripts/island_view.gd` only spawns debug spheres.
+- **Godot is a view.** `godot/` is a Godot **4.6** project. `DinoIslandNode` (`src/godot/`) is a thin GDExtension wrapper. `godot/scripts/island_view.gd` draws Quaternius GLB dinos (or grey spheres for unmapped species) from sim poses — no gameplay.
 - **Python is a port.** `train/` must match C++ goldens (`train/parity_check.py`, tolerance `1e-5`). If they disagree, Python is wrong.
 
 Do not put gameplay, ticking, or AI in GDScript. Add methods on `DinoIslandFeel` / `DinoIslandNode` instead.
