@@ -20,6 +20,7 @@ add_library(dino STATIC
     src/golden.cpp
 )
 target_include_directories(dino PUBLIC ${CMAKE_SOURCE_DIR}/include)
+set_target_properties(dino PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 if(MSVC)
     target_compile_options(dino PRIVATE /W4 $<$<CONFIG:Release>:/O2 /arch:AVX2>)
