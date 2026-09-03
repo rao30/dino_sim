@@ -67,6 +67,26 @@ int32_t DinoIslandFeel::agent_lod(int32_t index) const {
     return static_cast<int32_t>(island_.agents[static_cast<std::size_t>(index)].lod.tier);
 }
 
+int32_t DinoIslandFeel::agent_loco_state(int32_t index) const {
+    if (index < 0 || static_cast<std::size_t>(index) >= island_.agents.size()) return 0;
+    return static_cast<int32_t>(island_.agents[static_cast<std::size_t>(index)].loco_state);
+}
+
+float DinoIslandFeel::agent_speed(int32_t index) const {
+    if (index < 0 || static_cast<std::size_t>(index) >= island_.agents.size()) return 0;
+    return island_.agents[static_cast<std::size_t>(index)].speed;
+}
+
+float DinoIslandFeel::agent_body_radius(int32_t index) const {
+    if (index < 0 || static_cast<std::size_t>(index) >= island_.agents.size()) return 0;
+    return island_.agents[static_cast<std::size_t>(index)].radius();
+}
+
+bool DinoIslandFeel::agent_alive(int32_t index) const {
+    if (index < 0 || static_cast<std::size_t>(index) >= island_.agents.size()) return false;
+    return island_.agents[static_cast<std::size_t>(index)].alive;
+}
+
 int32_t DinoIslandFeel::lod_policy_count() const {
     int32_t n = 0;
     for (const auto& a : island_.agents)

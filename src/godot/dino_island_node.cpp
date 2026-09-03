@@ -13,6 +13,10 @@ void DinoIslandNode::_bind_methods() {
     ClassDB::bind_method(D_METHOD("agent_heading", "index"), &DinoIslandNode::agent_heading);
     ClassDB::bind_method(D_METHOD("agent_species", "index"), &DinoIslandNode::agent_species);
     ClassDB::bind_method(D_METHOD("agent_lod", "index"), &DinoIslandNode::agent_lod);
+    ClassDB::bind_method(D_METHOD("agent_loco_state", "index"), &DinoIslandNode::agent_loco_state);
+    ClassDB::bind_method(D_METHOD("agent_speed", "index"), &DinoIslandNode::agent_speed);
+    ClassDB::bind_method(D_METHOD("agent_body_radius", "index"), &DinoIslandNode::agent_body_radius);
+    ClassDB::bind_method(D_METHOD("agent_alive", "index"), &DinoIslandNode::agent_alive);
     ClassDB::bind_method(D_METHOD("raptor_kills"), &DinoIslandNode::raptor_kills);
     ClassDB::bind_method(D_METHOD("rear_arc_fraction"), &DinoIslandNode::rear_arc_fraction);
     ClassDB::bind_method(D_METHOD("immigrant_rate"), &DinoIslandNode::immigrant_rate);
@@ -45,6 +49,10 @@ Vector3 DinoIslandNode::agent_position(int32_t index) const {
 float DinoIslandNode::agent_heading(int32_t index) const { return feel_.agent_heading(index); }
 int32_t DinoIslandNode::agent_species(int32_t index) const { return feel_.agent_species(index); }
 int32_t DinoIslandNode::agent_lod(int32_t index) const { return feel_.agent_lod(index); }
+int32_t DinoIslandNode::agent_loco_state(int32_t index) const { return feel_.agent_loco_state(index); }
+float DinoIslandNode::agent_speed(int32_t index) const { return feel_.agent_speed(index); }
+float DinoIslandNode::agent_body_radius(int32_t index) const { return feel_.agent_body_radius(index); }
+bool DinoIslandNode::agent_alive(int32_t index) const { return feel_.agent_alive(index); }
 int32_t DinoIslandNode::raptor_kills() const { return feel_.raptor_kills(); }
 float DinoIslandNode::rear_arc_fraction() const { return feel_.rear_arc_fraction(); }
 float DinoIslandNode::immigrant_rate() const { return feel_.immigrant_rate(); }
