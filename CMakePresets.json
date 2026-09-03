@@ -1,0 +1,25 @@
+{
+  "version": 6,
+  "configurePresets": [
+    {
+      "name": "default",
+      "displayName": "C++ sim (no Godot extension)",
+      "binaryDir": "${sourceDir}/build",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "godot",
+      "inherits": "default",
+      "displayName": "C++ sim + Godot 4.6 GDExtension",
+      "cacheVariables": {
+        "DINO_GODOT": "ON"
+      }
+    }
+  ],
+  "buildPresets": [
+    { "name": "default", "configurePreset": "default" },
+    { "name": "godot", "configurePreset": "godot" }
+  ]
+}

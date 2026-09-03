@@ -1,0 +1,14 @@
+---
+description: Godot 4.6 GDExtension harness — keep the view thin, pin 4.6, build dino_godot
+globs: godot/**,src/godot/**,*.gd,*.tscn,*.gdextension,CMakeLists.txt
+alwaysApply: false
+---
+
+# Godot harness
+
+- Editor must be **4.6-stable** (`tools/godot/editor.path`). Setup: `powershell -File scripts/setup_godot.ps1`. Do not rename the Windows exe.
+- Open with `powershell -File scripts/godot.ps1` (`--path godot`).
+- Build extension: `cmake --preset godot && cmake --build --preset godot`.
+- godot-cpp tag stays `godot-4.4-stable` unless `godot/dino_sim.gdextension` compatibility_minimum changes.
+- `DinoIslandNode` stays a 1:1 bind of `dino::DinoIslandFeel`. `island_view.gd` is debug drawing only.
+- Extension output must remain `godot/bin/dino_godot.dll` (or `libdino_godot.so` / `.dylib`) as listed in `godot/dino_sim.gdextension`.

@@ -1,0 +1,70 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/island_view.gd" id="1"]
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_ground"]
+size = Vector2(128, 128)
+
+[sub_resource type="StandardMaterial3D" id="Mat_ground"]
+albedo_color = Color(0.32, 0.4, 0.26, 1)
+roughness = 0.95
+
+[node name="Island" type="Node3D"]
+script = ExtResource("1")
+
+[node name="DinoIsland" type="DinoIslandNode" parent="."]
+
+[node name="Ground" type="MeshInstance3D" parent="."]
+mesh = SubResource("PlaneMesh_ground")
+surface_material_override/0 = SubResource("Mat_ground")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.707, 0.707, 0, -0.707, 0.707, 0, 48, 48)
+current = true
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.5, 0.866, 0, -0.866, 0.5, 0, 20, 0)
+shadow_enabled = true
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="Panel" type="ColorRect" parent="HUD"]
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 420.0
+offset_bottom = 220.0
+color = Color(0, 0, 0, 0.55)
+
+[node name="Metrics" type="Label" parent="HUD"]
+offset_left = 16.0
+offset_top = 14.0
+offset_right = 410.0
+offset_bottom = 210.0
+theme_override_font_sizes/font_size = 16
+text = "…"
+
+[node name="Help" type="Label" parent="HUD"]
+offset_left = 16.0
+offset_top = 228.0
+offset_right = 640.0
+offset_bottom = 280.0
+theme_override_font_sizes/font_size = 14
+text = "N naive A/B   P pause   R reset   1-5 player archetype"
+
+[node name="AggressionRow" type="HBoxContainer" parent="HUD"]
+offset_left = 16.0
+offset_top = 284.0
+offset_right = 420.0
+offset_bottom = 316.0
+
+[node name="AggressionLabel" type="Label" parent="HUD/AggressionRow"]
+custom_minimum_size = Vector2(110, 0)
+text = "Aggression"
+
+[node name="AggressionSlider" type="HSlider" parent="HUD/AggressionRow"]
+custom_minimum_size = Vector2(220, 0)
+min_value = 0.0
+max_value = 1.0
+step = 0.05
+value = 0.6
+size_flags_horizontal = 3

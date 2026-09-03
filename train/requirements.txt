@@ -1,0 +1,5 @@
+warp-lang>=1.7
+numpy>=1.26
+# CUDA 13.0 wheel (RTX 5080 / sm_120):
+#   python -m pip install torch --index-url https://download.pytorch.org/whl/cu130
+torch>=2.14

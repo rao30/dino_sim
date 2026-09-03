@@ -1,0 +1,14 @@
+---
+description: dino_sim architecture, Godot 4.6 pin, and where sim logic lives
+alwaysApply: true
+---
+
+# dino_sim
+
+C++ (`include/dino`, `src/`) is the island sim. Godot 4.6 is a view via GDExtension. Python `train/` is a parity/training port of that sim.
+
+- Pin **Godot 4.6-stable** (`tools/godot/pin.json`). Never install winget Godot 4.7 for this repo.
+- Godot project root is `godot/`, not the repo root. Use `scripts/setup_godot.ps1` / `scripts/godot.ps1`. Do not rename the Windows editor exe.
+- Do not put gameplay or ticking in GDScript. Extend `DinoIslandFeel` / `DinoIslandNode`.
+- Species, knobs, archetypes: `include/dino/types.hpp`. Keep Python in lockstep.
+- Full agent instructions: `AGENTS.md`.
