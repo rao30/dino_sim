@@ -233,6 +233,7 @@ void bind_slots(DinoIsland* h, std::vector<uint32_t>& slots) {
 }
 
 struct IJob {
+    virtual ~IJob() = default;
     virtual void run(int i) = 0;
 };
 
@@ -319,6 +320,7 @@ void parallel_for(int n, Fn&& fn) {
     }
     struct Wrap : IJob {
         Fn* f;
+        explicit Wrap(Fn* fn) : f(fn) {}
         void run(int i) override { (*f)(i); }
     } job{&fn};
     thread_pool().run(n, &job);
