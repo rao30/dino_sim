@@ -47,7 +47,7 @@ powershell -File scripts/godot.ps1 -Run     # main scene
 cmake --build build --target godot_editor
 ```
 
-The island view is `godot/scenes/island.tscn`. Sim ticks in C++ (`dino::DinoIslandFeel`); GDScript only draws debug meshes.
+The island view is `godot/scenes/island.tscn`. Sim ticks in C++ (`dino::DinoIslandFeel`); GDScript only draws presentation meshes. Quaternius CC0 dinos live in `godot/assets/dinos/` (rebake FBX→GLB with `scripts/bake_quaternius_glb.py`).
 
 ## Python parity / train
 

@@ -39,21 +39,37 @@ const SPECIES_MODEL := {
 
 # Tuned so model footprint roughly matches sim body_radius.
 const SPECIES_SCALE := {
-	0: 1.35,
-	1: 1.15,
-	2: 1.55,
-	5: 1.25,
-	6: 1.45,
-	9: 2.1,
-	18: 1.9,
-	19: 2.0,
-	20: 1.4,
+	0: 1.25,
+	1: 1.05,
+	2: 1.45,
+	5: 1.15,
+	6: 1.35,
+	9: 1.85,
+	18: 1.7,
+	19: 1.8,
+	20: 1.25,
+}
+
+# Nominal max_speed (from types) used to drive AnimationPlayer.speed_scale.
+const SPECIES_REF_SPEED := {
+	0: 16.0,
+	1: 20.0,
+	2: 8.0,
+	5: 11.0,
+	6: 7.0,
+	9: 5.0,
+	18: 11.0,
+	19: 10.0,
+	20: 7.5,
 }
 
 func _ready() -> void:
 	aggression_slider.value_changed.connect(_on_aggression_changed)
 	_reset_sim(false)
 	_fit_ground()
+	# Start with a readable high orbit over the chase arena.
+	camera.global_position = Vector3(0, 52, 58)
+	camera.look_at(Vector3(0, 1.5, 0), Vector3.UP)
 
 func _reset_sim(naive: bool) -> void:
 	sim.reset(seed_value, naive)
@@ -113,12 +129,18 @@ func _process(_dt: float) -> void:
 	var n: int = sim.agent_count()
 	while agent_nodes.size() < n:
 		agent_nodes.append(_make_placeholder())
+	var alive_n := 0
+	var loco_counts := [0, 0, 0]
 	for i in range(n):
 		_sync_agent(i)
+		if sim.agent_alive(i):
+			alive_n += 1
+			var ls: int = clampi(sim.agent_loco_state(i), 0, 2)
+			loco_counts[ls] += 1
 	for i in range(n, agent_nodes.size()):
 		agent_nodes[i].visible = false
 	_update_camera(n)
-	_update_metrics(n)
+	_update_metrics(alive_n, n, loco_counts)
 
 func _make_placeholder() -> Node3D:
 	var root := Node3D.new()
@@ -134,11 +156,16 @@ func _packed_scene_for(path: String) -> PackedScene:
 	scene_cache[path] = ps
 	return ps
 
+func _strip_model(root: Node3D) -> void:
+	for c in root.get_children():
+		c.queue_free()
+	root.set_meta("species", -1)
+	root.set_meta("loco", -1)
+
 func _ensure_model(root: Node3D, species: int) -> void:
 	if int(root.get_meta("species")) == species and root.get_child_count() > 0:
 		return
-	for c in root.get_children():
-		c.queue_free()
+	_strip_model(root)
 	root.set_meta("species", species)
 	root.set_meta("loco", -1)
 	var path: Variant = SPECIES_MODEL.get(species, null)
@@ -174,15 +201,11 @@ func _pick_anim(player: AnimationPlayer, kind: String) -> String:
 		var low := String(n).to_lower()
 		if kind in low:
 			best = n
-			# Prefer loop-tagged clips
 			if "loop" in low:
 				return n
 	return best
 
-func _apply_loco(root: Node3D, loco: int) -> void:
-	if int(root.get_meta("loco")) == loco:
-		return
-	root.set_meta("loco", loco)
+func _apply_loco(root: Node3D, loco: int, speed: float, species: int) -> void:
 	var model: Node = root.get_node_or_null("Model")
 	if model == null:
 		return
@@ -197,15 +220,28 @@ func _apply_loco(root: Node3D, loco: int) -> void:
 	var clip := _pick_anim(player, kind)
 	if clip == "":
 		return
-	if player.current_animation == clip and player.is_playing():
-		return
-	player.play(clip)
+	if int(root.get_meta("loco")) != loco or player.current_animation != clip:
+		root.set_meta("loco", loco)
+		player.play(clip)
+	# Match foot cadence to sim speed to cut foot-slide.
+	var ref: float = float(SPECIES_REF_SPEED.get(species, 12.0))
+	var target := 1.0
+	if loco == LOCO_WALK:
+		target = clampf(speed / maxf(ref * 0.45, 0.1), 0.55, 1.35)
+	elif loco == LOCO_SPRINT:
+		target = clampf(speed / maxf(ref * 0.85, 0.1), 0.7, 1.55)
+	else:
+		target = 1.0
+	player.speed_scale = target
 
 func _sync_agent(i: int) -> void:
 	var root: Node3D = agent_nodes[i]
 	var alive: bool = sim.agent_alive(i)
 	root.visible = alive
 	if not alive:
+		# Drop skeletal mesh so dead immigrant slots don't keep AnimationPlayers alive.
+		if root.get_child_count() > 0:
+			_strip_model(root)
 		return
 	var species: int = sim.agent_species(i)
 	_ensure_model(root, species)
@@ -214,38 +250,42 @@ func _sync_agent(i: int) -> void:
 	var heading: float = sim.agent_heading(i)
 	root.rotation = Vector3(0.0, -(heading) + YAW_OFFSET, 0.0)
 	var loco: int = sim.agent_loco_state(i)
-	_apply_loco(root, loco)
+	var speed: float = sim.agent_speed(i)
+	_apply_loco(root, loco, speed, species)
 
 func _update_camera(n: int) -> void:
 	if not follow_camera or n <= 0:
 		return
-	# Track pack centroid with a high orbit so roam is readable on video.
+	# Prefer live raptors / players so the chase stays framed as immigrants pile up.
 	var sum := Vector3.ZERO
 	var count := 0
 	for i in range(n):
 		if not sim.agent_alive(i):
 			continue
+		var sp: int = sim.agent_species(i)
+		if sp != 0 and sp != 20 and sp != 2:
+			continue
 		sum += sim.agent_position(i)
 		count += 1
 	if count == 0:
+		for i in range(n):
+			if not sim.agent_alive(i):
+				continue
+			sum += sim.agent_position(i)
+			count += 1
+	if count == 0:
 		return
 	var center := sum / float(count)
-	var target := center + Vector3(0, 36, 42)
-	camera.global_position = camera.global_position.lerp(target, 0.08)
-	camera.look_at(center + Vector3(0, 1.5, 0), Vector3.UP)
+	var target := center + Vector3(0, 46, 54)
+	camera.global_position = camera.global_position.lerp(target, 0.06)
+	camera.look_at(center + Vector3(0, 1.2, 0), Vector3.UP)
 
-func _update_metrics(n: int) -> void:
+func _update_metrics(alive_n: int, slots: int, loco_counts: Array) -> void:
 	var mode := "NAIVE" if sim.is_naive() else "SCRIPTED"
 	var pause_txt := "PAUSED" if paused else "RUNNING"
-	var loco_counts := [0, 0, 0]
-	for i in range(n):
-		if not sim.agent_alive(i):
-			continue
-		var ls: int = clampi(sim.agent_loco_state(i), 0, 2)
-		loco_counts[ls] += 1
 	metrics_label.text = (
 		"Feel A/B: %s   %s\n" % [mode, pause_txt]
-		+ "Agents: %d   models: Quaternius GLB\n" % n
+		+ "Alive: %d   slots: %d   Quaternius GLB\n" % [alive_n, slots]
 		+ "Loco idle/walk/run: %d / %d / %d\n" % [loco_counts[0], loco_counts[1], loco_counts[2]]
 		+ "Raptor hunger: %.0f%%\n" % (sim.mean_raptor_hunger() * 100.0)
 		+ "Raptor kills: %d\n" % sim.raptor_kills()
